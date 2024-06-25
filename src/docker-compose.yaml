@@ -9,3 +9,13 @@ services:
       - ../data:/data/db
     ports:
       - 27017:27017
+
+
+  wiremock:
+    image: "wiremock/wiremock:latest"
+    container_name: my_wiremock
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+    ports:
+      - "8080:8080"
+    entrypoint: ["/docker-entrypoint.sh", "--global-response-templating", "--disable-gzip", "--verbose"]

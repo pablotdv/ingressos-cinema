@@ -8,7 +8,7 @@
             "name": "C#: Ingressos Debug",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/VendaIngressosCinema.csproj"
+            "projectPath": "${workspaceFolder}/VendaIngressosCinema/VendaIngressosCinema.csproj"
         }
 
     ]

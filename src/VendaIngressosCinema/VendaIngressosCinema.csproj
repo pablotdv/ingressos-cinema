@@ -8,7 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="QRCoder" Version="1.5.1" />
+    <PackageReference Include="SendGrid" Version="9.29.3" />
+    <PackageReference Include="SendGrid.Extensions.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.6" />
   </ItemGroup>
 
 </Project>

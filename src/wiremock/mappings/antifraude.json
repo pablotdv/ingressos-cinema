@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/antifraude/validar",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.cpf"
+      },
+      {
+        "matchesJsonPath": "$.nome"
+      },
+      {
+        "matchesJsonPath": "$.dataNascimento"
+      },
+      {
+        "matchesJsonPath": "$.email"
+      },
+      {
+        "matchesJsonPath": "$.cartaoCredito"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "{{randomValue type='UUID'}}",
+      "status": "{{pickRandom 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'reprovado'}}"
+    },
+    "delayDistribution": {
+      "type": "lognormal",
+      "median": 80,
+      "sigma": 0.4
+    }
+  }
+}

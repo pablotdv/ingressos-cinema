@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/v1/pagamento/efetuar",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.cpf"
+      },
+      {
+        "matchesJsonPath": "$.nome"
+      },
+      {
+        "matchesJsonPath": "$.cartaoCredito"
+      },
+      {
+        "matchesJsonPath": "$.valorCompra"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "{{randomValue type='UUID'}}",
+      "status": "{{pickRandom 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'aprovado' 'reprovado'}}"
+    },
+    "delayDistribution": {
+      "type": "lognormal",
+      "median": 80,
+      "sigma": 0.4
+    }
+  }
+}

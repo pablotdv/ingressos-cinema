@@ -32,8 +32,8 @@ namespace VendaIngressosCinema.Services
             ";
 
             var msg = MailHelper.CreateSingleEmail(from_email, to_email, subject, plainTextContent, htmlContent);
-            var response = await _client.SendEmailAsync(msg); 
-            return response.StatusCode == System.Net.HttpStatusCode.OK;
+            var response = await _client.SendEmailAsync(msg);            
+            return response.IsSuccessStatusCode;
         }
 
         private string GenerateBarcodeImage(string data)

@@ -1,3 +1,7 @@
+using Common;
+using Common.Jobs;
+using Confluent.Kafka;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VendaIngressosCinema.Services;
@@ -13,14 +17,19 @@ public class IngressosController : ControllerBase
     private readonly AntifraudeService _antifraudeService;
     private readonly PagamentoService _pagamentoService;
     private readonly EmailService _emailService;
+    private readonly IProducer<Null, String> _producer;
 
-    public IngressosController(ILogger<IngressosController> logger, IngressosContext context, AntifraudeService antifraudeService, PagamentoService pagamentoService, EmailService emailService)
+    private readonly IBackgroundJobClient _backgroundJobClient;
+
+    public IngressosController(ILogger<IngressosController> logger, IngressosContext context, AntifraudeService antifraudeService, PagamentoService pagamentoService, EmailService emailService, IProducer<Null, string> producer, IBackgroundJobClient backgroundJobClient)
     {
         _logger = logger;
         _context = context;
         _antifraudeService = antifraudeService;
         _pagamentoService = pagamentoService;
         _emailService = emailService;
+        _producer = producer;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     // Get All Ingressos
@@ -44,9 +53,53 @@ public class IngressosController : ControllerBase
         return ingresso;
     }
 
+    // Create ingresso async
+    [HttpPost("async")]
+    public async Task<ActionResult<Ingresso>> PostAsync(IngressoModel request)
+    {
+        var ingresso = new Ingresso
+        {
+            Evento = request.Evento,
+            Poltrona = request.Poltrona,
+            Cliente = new Cliente
+            {
+                Nome = request.Nome,
+                Cpf = request.Cpf,
+                Email = request.Email,
+                DataNascimento = request.DataNascimento,
+                Endereco = request.Endereco
+            },
+            Data = request.Data,
+            Valor = request.Valor,
+            CartaoCredito = request.CartaoCredito,
+            Status = IngressoStatus.Pendente
+        };
+        _context.Ingressos.Add(ingresso);
+        await _context.SaveChangesAsync();
+
+        //
+        var messageEvent = new IngressoRequest
+        {
+            IngressoId = ingresso.Id
+        };
+
+        var jsonSerializer = System.Text.Json.JsonSerializer.Serialize(messageEvent);
+
+        var result = await _producer.ProduceAsync("ingresso-venda", new Message<Null, string> { Value = jsonSerializer });
+
+        _backgroundJobClient.Enqueue<ValidarPoltronaJob>(x => x.Validar(new ValidarPoltronaRequest
+        {
+            Id = ingresso.Id,
+            Poltrona = ingresso.Poltrona,
+            Evento = ingresso.Evento,
+        }));
+
+        return CreatedAtAction("Get", new { id = ingresso.Id }, ingresso);
+    }
+
     // Create Ingresso
     [HttpPost]
-    public async Task<ActionResult<Ingresso>> Post(IngressoRequest request)
+    public async Task<ActionResult<Ingresso>> Post(IngressoModel request)
     {
         var ingresso = new Ingresso
         {
@@ -236,7 +289,7 @@ public class IngressosController : ControllerBase
     }
 }
 
-public class IngressoRequest
+public class IngressoModel
 {
     public string Evento { get; set; }
     public string Poltrona { get; set; }

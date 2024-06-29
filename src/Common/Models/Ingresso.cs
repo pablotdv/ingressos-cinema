@@ -4,14 +4,24 @@ using VendaIngressosCinema.Services;
 
 namespace VendaIngressosCinema;
 
+public enum Fluxo
+{
+    ValidarPoltrona,
+    Antifraude,
+    Pagamento,
+    EnviarEmail
+}
+
 public class IngressoHistorico
 {
     public DateTime Data { get; set; }
+    public Fluxo Fluxo { get; set; }
     public string Status { get; set; }
-    public AntifraudeResponse AntifraudeResponse { get; set; }
-    public PagamentoResponse PagamentoResponse { get; set; }
+    public AntifraudeResponse? AntifraudeResponse { get; set; }
+    public PagamentoResponse? PagamentoResponse { get; set; }
 }
 
+[BsonIgnoreExtraElements]
 public class Ingresso
 {
     public Guid Id { get; set; } = Guid.NewGuid();

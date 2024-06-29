@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendaIngressosCinema", "VendaIngressosCinema/VendaIngressosCinema.csproj", "{A5F8F061-737D-4D12-9959-24EC0EC05B59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendaIngressosCinema", "VendaIngressosCinema\VendaIngressosCinema.csproj", "{A5F8F061-737D-4D12-9959-24EC0EC05B59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendaIngressosCinemaWorker", "VendaIngressosCinemaWorker\VendaIngressosCinemaWorker.csproj", "{90D9FA8A-7293-4CC2-8924-2F95DDC63A46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{0FFFE713-FF97-43AA-99F5-DB8AC5B1B598}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendaIngressosCinemaHangfire", "VendaIngressosCinemaHangfire\VendaIngressosCinemaHangfire.csproj", "{2E7E6A6D-B7E3-44B9-A431-3580218712AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendaIngressosCinemaRabbitMQ", "VendaIngressosCinemaRabbitMQ\VendaIngressosCinemaRabbitMQ.csproj", "{7A1D9965-B595-475D-9A6A-AEDAFC8C5FCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +26,21 @@ Global
 		{A5F8F061-737D-4D12-9959-24EC0EC05B59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5F8F061-737D-4D12-9959-24EC0EC05B59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5F8F061-737D-4D12-9959-24EC0EC05B59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90D9FA8A-7293-4CC2-8924-2F95DDC63A46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90D9FA8A-7293-4CC2-8924-2F95DDC63A46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90D9FA8A-7293-4CC2-8924-2F95DDC63A46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90D9FA8A-7293-4CC2-8924-2F95DDC63A46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FFFE713-FF97-43AA-99F5-DB8AC5B1B598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FFFE713-FF97-43AA-99F5-DB8AC5B1B598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FFFE713-FF97-43AA-99F5-DB8AC5B1B598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FFFE713-FF97-43AA-99F5-DB8AC5B1B598}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E7E6A6D-B7E3-44B9-A431-3580218712AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E7E6A6D-B7E3-44B9-A431-3580218712AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E7E6A6D-B7E3-44B9-A431-3580218712AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E7E6A6D-B7E3-44B9-A431-3580218712AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A1D9965-B595-475D-9A6A-AEDAFC8C5FCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A1D9965-B595-475D-9A6A-AEDAFC8C5FCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A1D9965-B595-475D-9A6A-AEDAFC8C5FCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A1D9965-B595-475D-9A6A-AEDAFC8C5FCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -5,11 +5,35 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: Ingressos Debug",
+            "name": "API",
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/VendaIngressosCinema/VendaIngressosCinema.csproj"
+        },
+        {
+            "name": "Worker",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/VendaIngressosCinemaWorker/VendaIngressosCinemaWorker.csproj"
+        },
+        {
+            "name": "Hangfire",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/VendaIngressosCinemaHangfire/VendaIngressosCinemaHangfire.csproj"
+        },
+        {
+            "name": "RabbitMQ",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/VendaIngressosCinemaRabbitMQ/VendaIngressosCinemaRabbitMQ.csproj"
         }
-
+    ],
+    "compounds": [
+        {
+            "name": "C#: Ingressos",
+            "stopAll": true,
+            "configurations": ["API", "Worker", "Hangfire", "RabbitMQ"]
+        }
     ]
 }

@@ -12,10 +12,10 @@ builder.Services.Configure<RabbitMqSettings>(options => builder.Configuration.Ge
 builder.Services.AddSingleton<RabbitMqConnectionManager>();
 builder.Services.AddSingleton<EmailService>();
 
-builder.Services.AddSendGrid(options =>
-{
-    options.ApiKey = builder.Configuration.GetValue<string>("SENDGRID_API_KEY");
-});
+// builder.Services.AddSendGrid(options =>
+// {
+//     options.ApiKey = builder.Configuration.GetValue<string>("SENDGRID_API_KEY");
+// });
 
 builder.Services.AddHttpClient<PagamentoService>(options =>
 {

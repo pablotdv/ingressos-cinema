@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
   "evento": "Cinema",
-  "poltrona": "A76",
+  "poltrona": "A86",
   "nome": "Pablo",
   "cpf": "000.000.000-00",
   "email": "pablotdv@gmail.com",

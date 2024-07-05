@@ -16,9 +16,9 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IConsumer<Null, string> _consumer;
     private readonly AntifraudeService _antifraudeService;
-    private readonly RabbitMqConnectionManager _rabbitMqConnectionManager;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
+    private readonly RabbitMqConnectionManager _rabbitMqConnectionManager;
     private readonly IModel _channel;
 
     public Worker(ILogger<Worker> logger, RabbitMqConnectionManager rabbitMqConnectionManager, IServiceScopeFactory serviceScopeFactory, AntifraudeService antifraudeService)

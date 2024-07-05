@@ -14,7 +14,6 @@ namespace VendaIngressosCinemaRabbitMQ;
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private IngressosContext _context;
     private readonly PagamentoService _pagamentoService;
     private readonly EmailService _emailService;
     private readonly IModel _channel;
@@ -54,36 +53,37 @@ public class Worker : BackgroundService
                                          body: Encoding.UTF8.GetBytes(JsonSerializer.Serialize(ingressoRequest)));
                     return new ValueTask<Outcome<bool>>(Outcome.FromResult(false));
                 }
-            })  
+            })
             .AddRetry(new()
             {
                 ShouldHandle = new PredicateBuilder<bool>().Handle<ValidarPoltronaException>(),
                 MaxRetryAttempts = 4,
                 Delay = TimeSpan.FromSeconds(15),
-            })          
+            })
             .Build();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var scope = _serviceProvider.CreateScope();
-        _context = scope.ServiceProvider.GetRequiredService<IngressosContext>();
+
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += async (model, ea) =>
         {
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<IngressosContext>();
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
             ingressoRequest = JsonSerializer.Deserialize<IngressoRequest>(message);
 
             var result = await _pipeline.ExecuteAsync(async token =>
             {
-                return !await PoltronaReservada(ingressoRequest.IngressoId);
+                return !await PoltronaReservada(ingressoRequest.IngressoId, context);
             }, stoppingToken);
 
             if (result) return;
 
-            if (await PagamentoReprovado(ingressoRequest.IngressoId)) return;
-            await EnviarEmail(ingressoRequest.IngressoId);
+            if (await PagamentoReprovado(ingressoRequest.IngressoId, context)) return;
+            await EnviarEmail(ingressoRequest.IngressoId, context);
             Console.WriteLine($" [x] Received {message}");
         };
         _channel.BasicConsume(queue: "confirmacao-pagamento",
@@ -97,9 +97,9 @@ public class Worker : BackgroundService
         }
     }
 
-    private async Task<bool> PoltronaReservada(Guid ingressoId)
+    private async Task<bool> PoltronaReservada(Guid ingressoId, IngressosContext context)
     {
-        var ingresso = await _context.Ingressos.FindAsync(ingressoId);
+        var ingresso = await context.Ingressos.FindAsync(ingressoId);
 
         var fluxoValidarPoltrona = ingresso.Historicos.FirstOrDefault(a => a.Fluxo == Fluxo.ValidarPoltrona);
 
@@ -111,9 +111,9 @@ public class Worker : BackgroundService
         return fluxoValidarPoltrona.Status == "Poltrona reservada com sucesso";
     }
 
-    private async Task<bool> PagamentoReprovado(Guid ingressoId)
+    private async Task<bool> PagamentoReprovado(Guid ingressoId, IngressosContext context)
     {
-        var ingresso = await _context.Ingressos.FindAsync(ingressoId);
+        var ingresso = await context.Ingressos.FindAsync(ingressoId);
 
         var pagamentoRequest = new PagamentoRequest
         {
@@ -132,15 +132,15 @@ public class Worker : BackgroundService
             Fluxo = Fluxo.Pagamento
         });
         ingresso.Status = aprovado ? IngressoStatus.Aprovado : IngressoStatus.Rejeitado;
-        _context.Ingressos.Update(ingresso);
-        await _context.SaveChangesAsync();
+        context.Ingressos.Update(ingresso);
+        await context.SaveChangesAsync();
 
         return !aprovado;
     }
 
-    private async Task<bool> EnviarEmail(Guid ingressoId)
+    private async Task<bool> EnviarEmail(Guid ingressoId, IngressosContext context)
     {
-        var ingresso = await _context.Ingressos.FindAsync(ingressoId);
+        var ingresso = await context.Ingressos.FindAsync(ingressoId);
 
         var enviado = await _emailService.Enviar(ingresso);
         ingresso.Historicos.Add(new IngressoHistorico
@@ -149,8 +149,8 @@ public class Worker : BackgroundService
             Status = enviado ? "Email enviado com sucesso" : "Falha ao enviar email",
             Fluxo = Fluxo.EnviarEmail
         });
-        _context.Ingressos.Update(ingresso);
-        await _context.SaveChangesAsync();
+        context.Ingressos.Update(ingresso);
+        await context.SaveChangesAsync();
         return enviado;
     }
 }

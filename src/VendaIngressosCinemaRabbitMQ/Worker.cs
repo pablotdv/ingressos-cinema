@@ -69,22 +69,39 @@ public class Worker : BackgroundService
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += async (model, ea) =>
         {
-            using var scope = _serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IngressosContext>();
-            var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            ingressoRequest = JsonSerializer.Deserialize<IngressoRequest>(message);
-
-            var result = await _pipeline.ExecuteAsync(async token =>
+            try
             {
-                return !await PoltronaReservada(ingressoRequest.IngressoId, context);
-            }, stoppingToken);
+                using var scope = _serviceProvider.CreateScope();
+                using var logscope = _logger.BeginScope("Kafka consumindo mensagemn: {Id}", Guid.NewGuid());
+                _logger.LogInformation("Iniciando fluxo pagamento {IngressoId}", ingressoRequest.IngressoId);
+                var context = scope.ServiceProvider.GetRequiredService<IngressosContext>();
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                ingressoRequest = JsonSerializer.Deserialize<IngressoRequest>(message);
 
-            if (result) return;
+                var result = await _pipeline.ExecuteAsync(async token =>
+                {
+                    return !await PoltronaReservada(ingressoRequest.IngressoId, context);
+                }, stoppingToken);
 
-            if (await PagamentoReprovado(ingressoRequest.IngressoId, context)) return;
-            await EnviarEmail(ingressoRequest.IngressoId, context);
-            Console.WriteLine($" [x] Received {message}");
+                if (result)
+                {
+                    _logger.LogInformation("Poltrona já reservada");
+                    return;
+                };
+
+                if (await PagamentoReprovado(ingressoRequest.IngressoId, context))
+                {
+                    _logger.LogInformation("Pagamento reprovado {Motivo}", "Motivo vindo do outro método");
+                    return;
+                };
+                await EnviarEmail(ingressoRequest.IngressoId, context);
+                _logger.LogInformation("Pagamento aprovado com sucesso {IngressoId}", ingressoRequest.IngressoId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao processar mensagem");
+            }
         };
         _channel.BasicConsume(queue: "confirmacao-pagamento",
                              autoAck: true,

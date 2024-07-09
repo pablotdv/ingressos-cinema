@@ -4,6 +4,7 @@ using Confluent.Kafka;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using VendaIngressosCinema.Services;
 
 namespace VendaIngressosCinema.Controllers;
@@ -12,7 +13,8 @@ namespace VendaIngressosCinema.Controllers;
 [Route("[controller]")]
 public class IngressosController : ControllerBase
 {
-    private readonly ILogger<IngressosController> _logger;
+    //private readonly ILogger<IngressosController> _logger;
+    private readonly IDiagnosticContext _diagnosticContext;
     private readonly IngressosContext _context;
     private readonly AntifraudeService _antifraudeService;
     private readonly PagamentoService _pagamentoService;
@@ -21,15 +23,15 @@ public class IngressosController : ControllerBase
 
     private readonly IBackgroundJobClient _backgroundJobClient;
 
-    public IngressosController(ILogger<IngressosController> logger, IngressosContext context, AntifraudeService antifraudeService, PagamentoService pagamentoService, EmailService emailService, IProducer<Null, string> producer, IBackgroundJobClient backgroundJobClient)
-    {
-        _logger = logger;
+    public IngressosController(IngressosContext context, AntifraudeService antifraudeService, PagamentoService pagamentoService, EmailService emailService, IProducer<Null, string> producer, IBackgroundJobClient backgroundJobClient, IDiagnosticContext diagnosticContext)
+    {        
         _context = context;
         _antifraudeService = antifraudeService;
         _pagamentoService = pagamentoService;
         _emailService = emailService;
         _producer = producer;
         _backgroundJobClient = backgroundJobClient;
+        _diagnosticContext = diagnosticContext;
     }
 
     // Get All Ingressos
@@ -57,6 +59,8 @@ public class IngressosController : ControllerBase
     [HttpPost("async")]
     public async Task<ActionResult<Ingresso>> PostAsync(IngressoModel request)
     {
+        //_logger.LogInformation("Meu log aqui");
+        //_diagnosticContext.Set("Body", request, true);
         var ingresso = new Ingresso
         {
             Evento = request.Evento,

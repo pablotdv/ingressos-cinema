@@ -34,9 +34,9 @@ public class Worker : BackgroundService
         _consumer = new ConsumerBuilder<Null, string>(config).Build();
         _consumer.Subscribe("ingresso-venda");
 
-        _rabbitMqConnectionManager = rabbitMqConnectionManager;        
+        _rabbitMqConnectionManager = rabbitMqConnectionManager;
         _serviceScopeFactory = serviceScopeFactory;
-        _antifraudeService = antifraudeService;        
+        _antifraudeService = antifraudeService;
 
         _channel = _rabbitMqConnectionManager.CreateModel();
         _channel.QueueDeclare(queue: "confirmacao-pagamento",
@@ -51,7 +51,7 @@ public class Worker : BackgroundService
         using (var scope = _serviceScopeFactory.CreateScope())
         {
             _context = scope.ServiceProvider.GetRequiredService<IngressosContext>();
-            
+
             _channel.QueueDeclare(queue: "confirmacao-pagamento",
                      durable: false,
                      exclusive: false,
@@ -60,11 +60,11 @@ public class Worker : BackgroundService
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var consumeResult = _consumer.Consume(stoppingToken);
 
                 using var logscope = _logger.BeginScope("Kafka consumindo mensagemn: {Id}", Guid.NewGuid());
+                var consumeResult = _consumer.Consume(stoppingToken);
                 try
-                {
+                {                   
                     var request = JsonSerializer.Deserialize<IngressoRequest>(consumeResult.Message.Value);
 
                     var ingresso = await _context.Ingressos.FindAsync(request.IngressoId);
@@ -88,7 +88,9 @@ public class Worker : BackgroundService
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Erro ao processar mensagem");                    
+                    _logger.LogError(ex, "Erro ao processar mensagem");
+                    // ignorar e seguira pra próxima mensagem
+                    // implementar estratégia de circuit breaker
                 }
             }
         }
@@ -120,6 +122,6 @@ public class Worker : BackgroundService
         return !aprovado;
     }
 
-    
+
 
 }
